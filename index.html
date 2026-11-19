@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Digitaler Wunschzettel</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="app-header">
+    <h1 class="app-title">Wunschzettel</h1>
+    <button id="login-btn" class="btn btn-ghost">Login</button>
+  </header>
+
+  <!-- ===== Admin-Toolbar (nur Admin-Modus sichtbar) ===== -->
+  <div id="admin-toolbar" class="admin-toolbar" hidden>
+    <button id="add-wish-btn" class="btn btn-primary">+ Neuen Wunsch</button>
+    <button id="logout-btn" class="btn btn-ghost">Logout</button>
+  </div>
+
+  <!-- ===== Filter-Leiste ===== -->
+  <section class="filter-bar" aria-label="Filter und Suche">
+    <select id="filter-priority" class="filter-select" aria-label="Priorität filtern">
+      <option value="">Alle Prioritäten</option>
+      <option value="3">Hoch</option>
+      <option value="2">Mittel</option>
+      <option value="1">Niedrig</option>
+    </select>
+
+    <label class="filter-check">
+      <input id="filter-available" type="checkbox" />
+      <span>Nur noch frei</span>
+    </label>
+
+    <select id="sort-select" class="filter-select" aria-label="Sortierung">
+      <option value="priority">Priorität (absteigend)</option>
+      <option value="price_asc">Preis (aufsteigend)</option>
+      <option value="price_desc">Preis (absteigend)</option>
+    </select>
+
+    <input id="search-input" type="search" class="search-input" placeholder="Suche (Titel + Beschreibung)…" aria-label="Volltextsuche" />
+  </section>
+
+  <!-- ===== Wunsch-Grid ===== -->
+  <main>
+    <div id="wish-grid" class="wish-grid" aria-live="polite" aria-label="Wunschliste"></div>
+    <div id="empty-state" class="empty-state" hidden>
+      <p>Keine Wünsche gefunden.</p>
+    </div>
+  </main>
+
+  <!-- ===== Login-Modal ===== -->
+  <div id="login-modal" class="modal" hidden>
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h2>Admin-Login</h2>
+      <form id="login-form" class="login-form" novalidate>
+        <label for="login-password">Passwort</label>
+        <input id="login-password" type="password" autocomplete="current-password" required />
+        <div class="modal-actions">
+          <button id="login-submit" type="submit" class="btn btn-primary">Anmelden</button>
+          <button id="login-close" type="button" class="btn btn-ghost">Schließen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== Admin-Modal (Wunsch hinzufügen / bearbeiten) ===== -->
+  <div id="admin-modal" class="modal" hidden>
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h2 id="admin-modal-title">Neuen Wunsch erstellen</h2>
+
+      <form id="wish-form" novalidate>
+        <!-- Hidden ID: leer = neu, gefüllt = Edit -->
+        <input id="field-id" type="hidden" />
+
+        <label for="field-title">Titel *</label>
+        <input id="field-title" type="text" required placeholder="Produktname" />
+
+        <label for="field-description">Beschreibung</label>
+        <textarea id="field-description" rows="3" placeholder="Kurze Beschreibung…"></textarea>
+
+        <label for="field-price">Preis (€) *</label>
+        <input id="field-price" type="number" step="0.01" min="0" required placeholder="0.00" />
+
+        <label for="field-priority">Priorität *</label>
+        <select id="field-priority" required>
+          <option value="1">Niedrig</option>
+          <option value="2">Mittel</option>
+          <option value="3">Hoch</option>
+        </select>
+
+        <label for="field-product-url">Produkt-URL</label>
+        <input id="field-product-url" type="url" placeholder="https://…" />
+
+        <label for="field-image">Bild (JPG / PNG / WebP, max. 5 MB)</label>
+        <input id="field-image" type="file" accept="image/png,image/jpeg,image/webp" />
+        <img id="field-image-preview" class="image-preview" alt="Bildvorschau" hidden />
+
+        <label class="reserved-check">
+          <input id="field-is-reserved" type="checkbox" />
+          <span>Reserviert</span>
+        </label>
+
+        <div class="modal-actions">
+          <button id="form-submit" type="submit" class="btn btn-primary">Speichern</button>
+          <button id="form-cancel" type="button" class="btn btn-ghost">Abbrechen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== In-Card Delete-Bestätigung (wird per JS in Karten injiziert) ===== -->
+  <!-- Referenz-IDs für JS: #delete-confirm / #delete-cancel -->
+
+  <!-- ===== Scripts (Reihenfolge wichtig) ===== -->
+  <script src="config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
